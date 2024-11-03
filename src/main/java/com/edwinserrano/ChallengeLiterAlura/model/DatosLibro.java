@@ -80,19 +80,44 @@ public record DatosLibro(
         return numeroDeDescargas;
     }
 
+//    @Override
+//    public String toString() {
+//        String genero = categorias.isEmpty() ? "Sin género" : categorias.get(0);
+//        // Si la categoría comienza con "Browsing: ", extrae la parte relevante
+//        if (genero.startsWith("Browsing: ")) {
+//            genero = genero.split(": ")[1];
+//        }
+//        String autores = autor.isEmpty() ? "Sin autor" : autor.get(0).nombre(); // Asumiendo que tienes un método nombre() en DatosAutor
+//        double descargas = numeroDeDescargas != null ? numeroDeDescargas : 0.0; // Valor predeterminado si es null
+//        return String.format("Título: %s\nAutor(es): %s\nIdioma(s): %s\nGénero: %s\nNúmero de Descargas: %.0f",
+//                titulo,
+//                autores,
+//                String.join(", ", idiomas),
+//                genero,
+//                descargas);
+//    }
+
     @Override
     public String toString() {
-        String genero = categorias.isEmpty() ? "Sin género" : categorias.get(0);
-        // Si la categoría comienza con "Browsing: ", extrae la parte relevante
+        // Si no hay categorías, se establece "Sin género"; si no, se toma el primero.
+        String genero = categorias != null && !categorias.isEmpty() ? categorias.get(0) : "Sin género";
+
+        // Extrae la parte relevante si la categoría comienza con "Browsing: "
         if (genero.startsWith("Browsing: ")) {
             genero = genero.split(": ")[1];
         }
-        String autores = autor.isEmpty() ? "Sin autor" : autor.get(0).nombre(); // Asumiendo que tienes un método nombre() en DatosAutor
-        double descargas = numeroDeDescargas != null ? numeroDeDescargas : 0.0; // Valor predeterminado si es null
+
+        // Toma el primer autor si existe, o muestra "Sin autor"
+        String autores = autor != null && !autor.isEmpty() ? autor.get(0).nombre() : "Sin autor";
+
+        // Manejo de descargas con un valor predeterminado si es null
+        double descargas = numeroDeDescargas != null ? numeroDeDescargas : 0.0;
+
+        // Retorna el formato final del mensaje
         return String.format("Título: %s\nAutor(es): %s\nIdioma(s): %s\nGénero: %s\nNúmero de Descargas: %.0f",
-                titulo,
+                titulo != null ? titulo : "Sin título",
                 autores,
-                String.join(", ", idiomas),
+                idiomas != null ? String.join(", ", idiomas) : "Sin idioma",
                 genero,
                 descargas);
     }

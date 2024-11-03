@@ -1,6 +1,7 @@
 package com.edwinserrano.ChallengeLiterAlura.principal;
 
 import com.edwinserrano.ChallengeLiterAlura.model.Datos;
+import com.edwinserrano.ChallengeLiterAlura.model.DatosAutor;
 import com.edwinserrano.ChallengeLiterAlura.model.DatosLibro;
 import com.edwinserrano.ChallengeLiterAlura.service.ConsumoAPI;
 import com.edwinserrano.ChallengeLiterAlura.service.ConvierteDatos;
@@ -83,7 +84,7 @@ public class Principal {
     }
 
     private void buscarLibroPorTitulo() {
-        System.out.println("Por favor escribe el nombre del libro que deseas buscar");
+        System.out.println("Por favor escribe el nombre del libro que deseas buscar:");
         var nombreLibro = teclado.nextLine();
         var json = consumoApi.obtenerDatos(URL_BASE + URL_SEARCH + nombreLibro.replace(" ", "%20"));
         var datos = conversor.obtenerDatos(json, Datos.class);
@@ -180,8 +181,7 @@ public class Principal {
                 System.out.println("Libros disponibles en el idioma seleccionado (Página " + page + "):");
 
                 datos.libros().forEach(libro -> {
-                    System.out.println("Título: " + libro.titulo());
-
+                    System.out.println(libro.toString());
                     // Agregar cada libro obtenido a la lista de datosLibros
                     datosLibros.add(libro);
 
@@ -212,7 +212,7 @@ public class Principal {
         } else {
             System.out.println("Libros registrados en la lista:");
             datosLibros.forEach(libro -> {
-                System.out.println("Título: " + libro.titulo());
+                System.out.println(libro.toString());
                 //libro.autor().forEach(autor -> System.out.println("Autor: " + autor.nombre()));
 
                 // Mostrar opciones de descarga si están disponibles
@@ -234,22 +234,16 @@ public class Principal {
             System.out.println("Autores registrados en la lista:");
 
             datosLibros.forEach(libro -> {
-                // Mostrar cada autor del libro
-                libro.autor().forEach(autor -> {
-                    System.out.println(String.format(
-                            "Autor: %s\nAño de Nacimiento: %s\nAño de Muerte: %s",
-                            autor.nombre(),
-                            autor.fechaDeNacimiento() != null ? autor.fechaDeNacimiento() : "Desconocido",
-                            autor.fechaDeMuerte() != null ? autor.fechaDeMuerte() : "Desconocido"
-                    ));
-                });
+                // Obtener solo el primer autor del libro, si existe
+                libro.autor().stream().findFirst().ifPresentOrElse(
+                        autor -> {
+                            // Imprimir solo el primer autor utilizando su método toString()
+                            System.out.println(autor.toString());
+                        },
+                        // Caso en el que no hay autores
+                        () -> System.out.println("Sin autor registrado")
+                );
 
-                // Mostrar opciones de descarga si están disponibles
-                if (!libro.formatos().isEmpty()) {
-                    mostrarOpcionesDeDescarga(libro.formatos());
-                } else {
-                    System.out.println("No hay enlaces de descarga disponibles para este libro.");
-                }
                 // Línea punteada para separar registros
                 System.out.println("-------------------------------------------------------------------");
             });
