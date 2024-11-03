@@ -3,8 +3,10 @@ package com.edwinserrano.ChallengeLiterAlura.model;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @JsonIgnoreProperties(ignoreUnknown = true) //Ignora los campos no mapeados
 public record DatosLibro(
@@ -41,7 +43,14 @@ public record DatosLibro(
 
     @Override
     public List<String> categorias() {
-        return categorias;
+        return categorias.stream()
+                .map(categoria -> {
+                    if (categoria.startsWith("Browsing: ")) {
+                        return categoria.split(": ")[1]; // Extrae solo la parte después de "Browsing: "
+                    }
+                    return categoria; // Deja las otras categorías tal como están
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -59,6 +68,8 @@ public record DatosLibro(
         return tipoDeMedio;
     }
 
+    
+    
     @Override
     public Map<String, String> formatos() {
         return formatos;
@@ -67,5 +78,22 @@ public record DatosLibro(
     @Override
     public Double numeroDeDescargas() {
         return numeroDeDescargas;
+    }
+
+    @Override
+    public String toString() {
+        String genero = categorias.isEmpty() ? "Sin género" : categorias.get(0);
+        // Si la categoría comienza con "Browsing: ", extrae la parte relevante
+        if (genero.startsWith("Browsing: ")) {
+            genero = genero.split(": ")[1];
+        }
+        String autores = autor.isEmpty() ? "Sin autor" : autor.get(0).nombre(); // Asumiendo que tienes un método nombre() en DatosAutor
+        double descargas = numeroDeDescargas != null ? numeroDeDescargas : 0.0; // Valor predeterminado si es null
+        return String.format("Título: %s\nAutor(es): %s\nIdioma(s): %s\nGénero: %s\nNúmero de Descargas: %.0f",
+                titulo,
+                autores,
+                String.join(", ", idiomas),
+                genero,
+                descargas);
     }
 }
