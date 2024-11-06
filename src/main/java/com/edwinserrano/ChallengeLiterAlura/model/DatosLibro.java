@@ -2,8 +2,6 @@ package com.edwinserrano.ChallengeLiterAlura.model;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -13,7 +11,6 @@ public record DatosLibro(
         @JsonAlias ("title") String titulo,
         @JsonAlias ("authors") List<DatosAutor> autor,
         @JsonAlias ("translators") List<DatosTraduccion> traduccion,
-        @JsonAlias("subjects") List<String> genero,
         @JsonAlias("bookshelves") List<String> categorias,
         @JsonAlias ("languages") List<String> idiomas,
         @JsonAlias ("copyright") Boolean derechosAutor,
@@ -34,11 +31,6 @@ public record DatosLibro(
     @Override
     public List<DatosTraduccion> traduccion() {
         return traduccion;
-    }
-
-    @Override
-    public List<String> genero() {
-        return genero;
     }
 
     @Override
@@ -79,24 +71,6 @@ public record DatosLibro(
     public Double numeroDeDescargas() {
         return numeroDeDescargas;
     }
-
-//    @Override
-//    public String toString() {
-//        String genero = categorias.isEmpty() ? "Sin género" : categorias.get(0);
-//        // Si la categoría comienza con "Browsing: ", extrae la parte relevante
-//        if (genero.startsWith("Browsing: ")) {
-//            genero = genero.split(": ")[1];
-//        }
-//        String autores = autor.isEmpty() ? "Sin autor" : autor.get(0).nombre(); // Asumiendo que tienes un método nombre() en DatosAutor
-//        double descargas = numeroDeDescargas != null ? numeroDeDescargas : 0.0; // Valor predeterminado si es null
-//        return String.format("Título: %s\nAutor(es): %s\nIdioma(s): %s\nGénero: %s\nNúmero de Descargas: %.0f",
-//                titulo,
-//                autores,
-//                String.join(", ", idiomas),
-//                genero,
-//                descargas);
-//    }
-
     @Override
     public String toString() {
         // Si no hay categorías, se establece "Sin género"; si no, se toma el primero.
@@ -121,4 +95,5 @@ public record DatosLibro(
                 genero,
                 descargas);
     }
+
 }

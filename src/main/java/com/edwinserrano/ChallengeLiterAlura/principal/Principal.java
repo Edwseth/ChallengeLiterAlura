@@ -54,12 +54,12 @@ public class Principal {
                     case 4:
                         verAutoresRegistrados();
                         break;
-                    case 5:
-                        buscarLibroPorAutorEnBaseDeDatos();
-                        break;
-                    case 6:
-                        buscarAutoresVivosPorRangoDeAnos();
-                        break;
+//                    case 5:
+//                        buscarLibroPorAutorEnBaseDeDatos();
+//                        break;
+//                    case 6:
+//                        buscarAutoresVivosPorRangoDeAnos();
+//                        break;
                     case 7:
                         top10LibrosMasDescargados();
                         break;
@@ -249,89 +249,89 @@ public class Principal {
             });
         }
     }
-
-    private void buscarLibroPorAutorEnBaseDeDatos() {
-        System.out.println("Por favor escribe el nombre del autor que deseas buscar");
-        var nombreAutor = teclado.nextLine();
-        var json = consumoApi.obtenerDatos(URL_BASE + URL_SEARCH + nombreAutor.replace(" ", "%20"));
-        var datos = conversor.obtenerDatos(json, Datos.class);
-
-        // Usando Streams para procesar y mostrar los libros y autores
-        datos.libros().stream()
-                .findFirst()
-                .ifPresentOrElse(libro -> {
-                            System.out.println("Primer resultado encontrado:");
-                            System.out.println("Título: " + libro.titulo());
-
-                            libro.autor().forEach(autor -> {
-                                System.out.println("Autor: " + autor.nombre());
-                                // System.out.println("Año de Nacimiento: " +
-                                //        (autor.fechaDeNacimiento() != null ? autor.fechaDeNacimiento() : "Desconocido"));
-                                // System.out.println("Año de Muerte: " +
-                                //        (autor.fechaDeMuerte() != null ? autor.fechaDeMuerte() : "Desconocido"));
-                            });
-
-                            // Almacena el libro en la lista de datosLibros
-                            datosLibros.add(libro);
-
-                            // Mostrar opciones de descarga si están disponibles
-                            if (!libro.formatos().isEmpty()) {
-                                mostrarOpcionesDeDescarga(libro.formatos());
-                            } else {
-                                System.out.println("No hay enlaces de descarga disponibles para este libro.");
-                            }
-                        },
-                        () -> System.out.println("No se encontraron libros para el autor especificado."));
-    }
-
-    private void buscarAutoresVivosPorRangoDeAnos() {
-        System.out.println("Por favor ingresa el año de inicio del rango en el que deseas encontrar autores vivos:");
-        int anoInicio = teclado.nextInt();
-        System.out.println("Por favor ingresa el año de fin del rango en el que deseas encontrar autores vivos:");
-        int anoFin = teclado.nextInt();
-        teclado.nextLine(); // Limpiar el buffer del scanner
-
-        int page = 1;
-        boolean continuar = true;
-
-        while (continuar) {
-            // Construir la URL de búsqueda con los parámetros de rango de años
-            String urlBusqueda = URL_BASE + "author_year_start=" + anoInicio + "&author_year_end=" + anoFin + URL_NEXT + page;
-            var json = consumoApi.obtenerDatos(urlBusqueda);
-            var datos = conversor.obtenerDatos(json, Datos.class);
-
-            if (datos.libros().isEmpty()) {
-                System.out.println("No se encontraron más libros con autores vivos en el rango especificado en la página " + page + ".");
-                continuar = false;
-            } else {
-                System.out.println("Libros con autores vivos entre los años " + anoInicio + " y " + anoFin + " (Página " + page + "):");
-
-                // Mostrar los libros y sus autores
-                datos.libros().forEach(libro -> {
-                    System.out.println("Título: " + libro.titulo());
-                    libro.autor().forEach(autor -> {
-                        System.out.println("Autor: " + autor.nombre());
-                        System.out.println("Año de Nacimiento: " +
-                                (autor.fechaDeNacimiento() != null ? autor.fechaDeNacimiento() : "Desconocido"));
-                        System.out.println("Año de Muerte: " +
-                                (autor.fechaDeMuerte() != null ? autor.fechaDeMuerte() : "Desconocido"));
-                        System.out.println("---------------------------------------");
-                    });
-                    // Agregar el libro a la lista de datosLibros si lo deseas
-                    datosLibros.add(libro);
-                });
-
-                // Preguntar si el usuario desea continuar con la siguiente página
-                System.out.println("¿Deseas ver más resultados? (S para continuar / cualquier otra tecla para salir): ");
-                String respuesta = teclado.nextLine().trim().toLowerCase();
-                if (!respuesta.equals("s")) {
-                    continuar = false;
-                } else {
-                    page++;
-                }
-            }
-        }
-    }
+//
+//    private void buscarLibroPorAutorEnBaseDeDatos() {
+//        System.out.println("Por favor escribe el nombre del autor que deseas buscar");
+//        var nombreAutor = teclado.nextLine();
+//        var json = consumoApi.obtenerDatos(URL_BASE + URL_SEARCH + nombreAutor.replace(" ", "%20"));
+//        var datos = conversor.obtenerDatos(json, Datos.class);
+//
+//        // Usando Streams para procesar y mostrar los libros y autores
+//        datos.libros().stream()
+//                .findFirst()
+//                .ifPresentOrElse(libro -> {
+//                            System.out.println("Primer resultado encontrado:");
+//                            System.out.println("Título: " + libro.titulo());
+//
+//                            libro.autor().forEach(autor -> {
+//                                System.out.println("Autor: " + autor.nombre());
+//                                // System.out.println("Año de Nacimiento: " +
+//                                //        (autor.fechaDeNacimiento() != null ? autor.fechaDeNacimiento() : "Desconocido"));
+//                                // System.out.println("Año de Muerte: " +
+//                                //        (autor.fechaDeMuerte() != null ? autor.fechaDeMuerte() : "Desconocido"));
+//                            });
+//
+//                            // Almacena el libro en la lista de datosLibros
+//                            datosLibros.add(libro);
+//
+//                            // Mostrar opciones de descarga si están disponibles
+//                            if (!libro.formatos().isEmpty()) {
+//                                mostrarOpcionesDeDescarga(libro.formatos());
+//                            } else {
+//                                System.out.println("No hay enlaces de descarga disponibles para este libro.");
+//                            }
+//                        },
+//                        () -> System.out.println("No se encontraron libros para el autor especificado."));
+//    }
+//
+//    private void buscarAutoresVivosPorRangoDeAnos() {
+//        System.out.println("Por favor ingresa el año de inicio del rango en el que deseas encontrar autores vivos:");
+//        int anoInicio = teclado.nextInt();
+//        System.out.println("Por favor ingresa el año de fin del rango en el que deseas encontrar autores vivos:");
+//        int anoFin = teclado.nextInt();
+//        teclado.nextLine(); // Limpiar el buffer del scanner
+//
+//        int page = 1;
+//        boolean continuar = true;
+//
+//        while (continuar) {
+//            // Construir la URL de búsqueda con los parámetros de rango de años
+//            String urlBusqueda = URL_BASE + "author_year_start=" + anoInicio + "&author_year_end=" + anoFin + URL_NEXT + page;
+//            var json = consumoApi.obtenerDatos(urlBusqueda);
+//            var datos = conversor.obtenerDatos(json, Datos.class);
+//
+//            if (datos.libros().isEmpty()) {
+//                System.out.println("No se encontraron más libros con autores vivos en el rango especificado en la página " + page + ".");
+//                continuar = false;
+//            } else {
+//                System.out.println("Libros con autores vivos entre los años " + anoInicio + " y " + anoFin + " (Página " + page + "):");
+//
+//                // Mostrar los libros y sus autores
+//                datos.libros().forEach(libro -> {
+//                    System.out.println("Título: " + libro.titulo());
+//                    libro.autor().forEach(autor -> {
+//                        System.out.println("Autor: " + autor.nombre());
+//                        System.out.println("Año de Nacimiento: " +
+//                                (autor.fechaDeNacimiento() != null ? autor.fechaDeNacimiento() : "Desconocido"));
+//                        System.out.println("Año de Muerte: " +
+//                                (autor.fechaDeMuerte() != null ? autor.fechaDeMuerte() : "Desconocido"));
+//                        System.out.println("---------------------------------------");
+//                    });
+//                    // Agregar el libro a la lista de datosLibros si lo deseas
+//                    datosLibros.add(libro);
+//                });
+//
+//                // Preguntar si el usuario desea continuar con la siguiente página
+//                System.out.println("¿Deseas ver más resultados? (S para continuar / cualquier otra tecla para salir): ");
+//                String respuesta = teclado.nextLine().trim().toLowerCase();
+//                if (!respuesta.equals("s")) {
+//                    continuar = false;
+//                } else {
+//                    page++;
+//                }
+//            }
+//        }
+//    }
 
     private void top10LibrosMasDescargados() {
 
