@@ -1,4 +1,4 @@
 package com.edwinserrano.ChallengeLiterAlura.repository;
 
-public interface Repository {
+public interface LibroRepository {
 }
