@@ -2,98 +2,79 @@ package com.edwinserrano.ChallengeLiterAlura.model;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @JsonIgnoreProperties(ignoreUnknown = true) //Ignora los campos no mapeados
 public record DatosLibro(
         @JsonAlias ("title") String titulo,
+        @JsonProperty
         @JsonAlias ("authors") List<DatosAutor> autor,
+        @JsonProperty
         @JsonAlias ("translators") List<DatosTraduccion> traduccion,
+        @JsonProperty
         @JsonAlias("bookshelves") List<String> categorias,
+        @JsonProperty
         @JsonAlias ("languages") List<String> idiomas,
         @JsonAlias ("copyright") Boolean derechosAutor,
         @JsonAlias ("media_type") String tipoDeMedio,
         @JsonAlias("formats") Map<String, String> formatos,
+        @JsonProperty
         @JsonAlias ("download_count") Double numeroDeDescargas
 ) {
-    @Override
-    public String titulo() {
+
+    public String getTitulo() {
         return titulo;
     }
 
-    @Override
-    public List<DatosAutor> autor() {
-        return autor;
+    public Object getCategorias() {
+        return categorias;
     }
-
-    @Override
-    public List<DatosTraduccion> traduccion() {
-        return traduccion;
-    }
-
-    @Override
-    public List<String> categorias() {
-        return categorias.stream()
-                .map(categoria -> {
-                    if (categoria.startsWith("Browsing: ")) {
-                        return categoria.split(": ")[1]; // Extrae solo la parte después de "Browsing: "
-                    }
-                    return categoria; // Deja las otras categorías tal como están
-                })
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<String> idiomas() {
+//
+    public Object getIdiomas() {
         return idiomas;
     }
-
-    @Override
-    public Boolean derechosAutor() {
-        return derechosAutor;
-    }
-
-    @Override
-    public String tipoDeMedio() {
+//
+    public Object getTipoDeMedio() {
         return tipoDeMedio;
     }
-
-    
-    
-    @Override
-    public Map<String, String> formatos() {
+//
+    public Object getFormatos() {
         return formatos;
     }
 
-    @Override
-    public Double numeroDeDescargas() {
+    public Object getTraduccion() {
+        return traduccion;
+    }
+
+    public Object getNumeroDeDescargas() {
         return numeroDeDescargas;
     }
-    @Override
-    public String toString() {
-        // Si no hay categorías, se establece "Sin género"; si no, se toma el primero.
-        String genero = categorias != null && !categorias.isEmpty() ? categorias.get(0) : "Sin género";
 
-        // Extrae la parte relevante si la categoría comienza con "Browsing: "
-        if (genero.startsWith("Browsing: ")) {
-            genero = genero.split(": ")[1];
-        }
-
-        // Toma el primer autor si existe, o muestra "Sin autor"
-        String autores = autor != null && !autor.isEmpty() ? autor.get(0).nombre() : "Sin autor";
-
-        // Manejo de descargas con un valor predeterminado si es null
-        double descargas = numeroDeDescargas != null ? numeroDeDescargas : 0.0;
-
-        // Retorna el formato final del mensaje
-        return String.format("Título: %s\nAutor(es): %s\nIdioma(s): %s\nGénero: %s\nNúmero de Descargas: %.0f",
-                titulo != null ? titulo : "Sin título",
-                autores,
-                idiomas != null ? String.join(", ", idiomas) : "Sin idioma",
-                genero,
-                descargas);
+    public Optional<Object> stream() {
+        return Optional.ofNullable(autor);
     }
 
+    public String getAutor() {
+        return autor.toString();
+    }
+
+    @Override
+    public String toString() {
+        String autorLimpio = autor.stream()
+                .map(autor -> autor.toString()) // O autor.getNombre() si es apropiado
+                .collect(Collectors.joining(", "));
+        // Elimina "Browsing: " de cada categoría antes de mostrarla
+        String categoriasLimpias = categorias.stream()
+                .map(categoria -> categoria.replace("Browsing: ", ""))
+                .collect(Collectors.joining(", "));
+        return "Titulo= " + titulo +
+                "\nAutor= " + autorLimpio +
+                "\nGénero= " + categoriasLimpias +
+                "\nNúmero de Descargas= " + numeroDeDescargas;
+    }
 }

@@ -1,23 +1,32 @@
 package com.edwinserrano.ChallengeLiterAlura.principal;
 
-import com.edwinserrano.ChallengeLiterAlura.model.Datos;
-import com.edwinserrano.ChallengeLiterAlura.model.DatosAutor;
-import com.edwinserrano.ChallengeLiterAlura.model.DatosLibro;
+import com.edwinserrano.ChallengeLiterAlura.model.*;
+import com.edwinserrano.ChallengeLiterAlura.repository.AutorRepository;
+import com.edwinserrano.ChallengeLiterAlura.repository.LibroRepository;
 import com.edwinserrano.ChallengeLiterAlura.service.ConsumoAPI;
 import com.edwinserrano.ChallengeLiterAlura.service.ConvierteDatos;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import java.util.*;
-import java.util.stream.Collectors;
 
+@Service
 public class Principal {
     private Scanner teclado = new Scanner(System.in);
     private ConsumoAPI consumoApi = new ConsumoAPI();
+    private final LibroRepository libroRepository;
+    private final AutorRepository autorRepository;
     private final String URL_BASE = "https://gutendex.com/books/?";
     private final String URL_SEARCH = "search=";
     private final String URL_IDIOMA = "languages=";
     private final String URL_NEXT = "&page=";
     private ConvierteDatos conversor = new ConvierteDatos();
     private List<DatosLibro> datosLibros = new ArrayList<>();
+
+    @Autowired
+    public Principal(LibroRepository libroRepository, AutorRepository autorRepository) {
+        this.libroRepository = libroRepository;
+        this.autorRepository = autorRepository;
+    }
 
     public void mostrarMenu() {
         var opcion = -1;
@@ -82,64 +91,74 @@ public class Principal {
         }
 
     }
+    private void buscarLibroPorTitulo(){
+            DatosLibro datosLibros = getDatosLibro();
+            if (datosLibros != null) {
+                Autores autores = obtenerAutorPorNombre(datosLibros.getAutor());
+                Libros libros = new Libros(datosLibros,autores);
+                libroRepository.save(libros);
+            }
+    }
 
-    private void buscarLibroPorTitulo() {
+    public Autores obtenerAutorPorNombre(String nombreAutor) {
+        return autorRepository.findByNombre(nombreAutor);
+    }
+
+    private DatosLibro getDatosLibro() {
         System.out.println("Por favor escribe el nombre del libro que deseas buscar:");
         var nombreLibro = teclado.nextLine();
-        var json = consumoApi.obtenerDatos(URL_BASE + URL_SEARCH + nombreLibro.replace(" ", "%20"));
-        var datos = conversor.obtenerDatos(json, Datos.class);
 
-        Optional<DatosLibro> primerLibro = datos.libros().stream().findFirst();
-        if (primerLibro.isPresent()) {
-            DatosLibro libro = primerLibro.get();
+        try {
+            var json = consumoApi.obtenerDatos(URL_BASE + URL_SEARCH + nombreLibro.replace(" ", "%20"));
+            var datos = conversor.obtenerDatos(json, Datos.class);
 
-            // Mostrar detalles del libro usando toString
-            System.out.println(libro.toString());
+            Optional<DatosLibro> primerLibro = datos.libros().stream().findFirst();
+            primerLibro.ifPresentOrElse(dato -> {
+                imprimirDetallesLibro(dato);
+                guardarLibro(dato);
+                mostrarOpcionesDeDescargaSiExisten(dato);
+            }, () -> {
+                System.out.println("No se encontraron libros con el título: " + nombreLibro);
+            });
+        } catch (Exception e) {
+            System.out.println("Hubo un error al obtener los datos: " + e.getMessage());
+        }
+        return null;
+    }
 
-            datosLibros.add(libro);
+    private void imprimirDetallesLibro(DatosLibro libros) {
+        System.out.println(libros.toString());
+    }
 
-            if (!libro.formatos().isEmpty()) {
-                mostrarOpcionesDeDescarga(libro.formatos());
-            } else {
-                System.out.println("No hay enlaces de descarga disponibles para este libro.");
-            }
+//    private void imprimirDetallesLibro(DatosLibro dato) {
+//        System.out.println("Título: " + dato.getTitulo());
+//        System.out.println("Tipo de Medio: " + dato.getTipoDeMedio());
+//        System.out.println("Autor: " + dato.getAutor());
+//        System.out.println("Categorías: " + dato.getCategorias());
+//        System.out.println("Idiomas: " + dato.getIdiomas());
+//        //System.out.println("Traducción: " + dato.getTraduccion());
+//        //System.out.println("Formatos: " + dato.getFormatos());
+//        System.out.println("Número de Descargas: " + dato.getNumeroDeDescargas());
+//    }
+
+    private void guardarLibro(DatosLibro dato) {
+        Autores autores = dato.autor().stream()
+                .findFirst()
+                .map(a -> new Autores(a.nombre(), a.fechaDeNacimiento(), a.fechaDeMuerte()))
+                .orElse(null);
+
+        Libros libros = new Libros(dato, autores);
+        libroRepository.save(libros);
+    }
+
+    private void mostrarOpcionesDeDescargaSiExisten(DatosLibro dato) {
+        if (!dato.formatos().isEmpty()) {
+            mostrarOpcionesDeDescarga(dato.formatos());
         } else {
-            System.out.println("No se encontraron libros con ese título.");
+            System.out.println("No hay enlaces de descarga disponibles para este libro.");
         }
     }
 
-//    private void buscarLibroTitulo() {
-//        System.out.println("Por favor escribe el nombre del libro que deseas buscar");
-//        var nombreLibro = teclado.nextLine();
-//        var json = consumoApi.obtenerDatos(URL_BASE + URL_SEARCH + nombreLibro.replace(" ", "%20"));
-//        var datos = conversor.obtenerDatos(json, Datos.class);
-//
-//        // Obtener el primer libro coincidente
-//        Optional<DatosLibro> primerLibro = datos.libros().stream().findFirst();
-//        if (primerLibro.isPresent()) {
-//            DatosLibro libro = primerLibro.get();
-//            System.out.println("Título: " + libro.titulo());
-//
-//            // Mostrar autores
-//            libro.autor().forEach(autor -> {
-//                System.out.println("Autor: " + autor.nombre());
-//                // System.out.println("Año de Nacimiento: " + autor.fechaDeNacimiento());
-//                // System.out.println("Año de Muerte: " + autor.fechaDeMuerte());
-//            });
-//            System.out.println("---------------------------------------");
-//            // Almacenar el libro en la lista de datosLibros
-//            datosLibros.add(libro);
-//
-//            // Mostrar opciones de descarga si están disponibles
-//            if (!libro.formatos().isEmpty()) {
-//                mostrarOpcionesDeDescarga(libro.formatos());
-//            } else {
-//                System.out.println("No hay enlaces de descarga disponibles para este libro.");
-//            }
-//        } else {
-//            System.out.println("No se encontraron libros con ese título.");
-//        }
-//    }
 
     private void buscarLibroPorIdioma(){
         System.out.println("Por favor selecciona el idioma del libro que deseas buscar:");
@@ -365,6 +384,8 @@ public class Principal {
             System.out.println("No se encontró un formato de lectura compatible disponible.");
         }
     }
+
+
 }
 
 
