@@ -3,84 +3,72 @@ package com.edwinserrano.ChallengeLiterAlura.model;
 import jakarta.persistence.*;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Entity
-@Table(name = "datos_autores")
-public class Autores {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    @Column(name = "name")
-    private String nombre;
-    @Column(name = "birth_year")
-    private Integer fechaDeNacimiento;
-    @Column(name = "death_year")
-    private Integer fechaDeMuerte;
+@Table(name = "authors")
+public class Author {
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+  private String name;
+  private int birthYear;
+  private int deathYear;
+  @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
+  private List<Book> book;
 
-    @OneToMany(mappedBy = "autor", cascade = CascadeType.ALL, fetch = FetchType.EAGER)//@ManeToMany(mappedBy = "autor", cascade = CascadeType.ALL, fetch = FetchType.EAGER )
-    private List<Libros> libros;
+  public Author() {}
 
-    public Autores(){}
+  public Author(String name, int birthYear, int deathYear) {
+    this.name = name != null ? name : "Autor Desconocido";
+    this.birthYear = Optional.ofNullable(birthYear).orElse(0);
+    this.deathYear = Optional.ofNullable(deathYear).orElse(0);
+  }
 
-    public Autores(String nombre, Integer fechaDeNacimiento, Integer fechaDeMuerte) { //public Autores(Long id, String nombre, Integer fechaDeNacimiento, Integer fechaDeMuerte) {
-        //this.id = id;
-        this.nombre = nombre != null ? nombre : "Autor Desconocido";
-        this.fechaDeNacimiento = Optional.ofNullable(fechaDeNacimiento).orElse(0);
-        this.fechaDeMuerte = Optional.ofNullable(fechaDeMuerte).orElse(0);
-    }
+  public String getName() {
+    return name;
+  }
 
+  public void setName(String name) {
+    this.name = name;
+  }
 
-//    public List<Libros> getLibros() {return libros;}
-//
-//    public void setLibros(List<Libros> libros) {this.libros = libros;}
+  public int getBirthYear() {
+    return birthYear;
+  }
 
-//    public Long getId() {
-//        return id;
-//    }
-//
-//    public void setId(Long id) {
-//        this.id = id;
-//    }
+  public void setBirthYear(int birthYear) {
+    this.birthYear = birthYear;
+  }
 
-    public String getNombre() {
-        return nombre;
-    }
+  public int getDeathYear() {
+    return deathYear;
+  }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
+  public void setDeathYear(int deathYear) {
+    this.deathYear = deathYear;
+  }
 
-    public Integer getFechaDeNacimiento() {
-        return fechaDeNacimiento;
-    }
+  @Override
+  public String toString() {
+    return "{" +
+        "deathYear=" + deathYear +
+        ", birthYear=" + birthYear +
+        ", name='" + name + '\'' +
+        '}';
+  }
 
-    public void setFechaDeNacimiento(Integer fechaDeNacimiento) {
-        this.fechaDeNacimiento = fechaDeNacimiento;
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Author author = (Author) o;
+    return birthYear == author.birthYear && deathYear == author.deathYear && Objects.equals(id, author.id) && Objects.equals(name, author.name);
+  }
 
-    public Integer getFechaDeMuerte() {
-        return fechaDeMuerte;
-    }
-
-    public void setFechaDeMuerte(Integer fechaDeMuerte) {
-        this.fechaDeMuerte = fechaDeMuerte;
-    }
-
-    @Override
-    public String toString() {
-        return "Autores{" +
-                "nombre='" + nombre + '\'' +
-                ", fechaDeNacimiento=" + fechaDeNacimiento +
-                ", fechaDeMuerte=" + fechaDeMuerte +
-                '}';
-    }
-
-//    @Override
-//    public boolean esIgual(Object o) {
-//        if (this == o) return true;
-//        if (o == null || getClass() != o.getClass()) return false;
-//        Autores autores = (Autores) o;
-//        return fechaDeNacimiento == autores.fechaDeNacimiento && fechaDeMuerte == autores.fechaDeMuerte && Object.esIgual(id, autores.id) && Object.esIgual(nombre, autores.nombre);
-//    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, name, birthYear, deathYear);
+  }
 }
