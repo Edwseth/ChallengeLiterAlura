@@ -2,219 +2,90 @@ package com.edwinserrano.ChallengeLiterAlura.model;
 
 import jakarta.persistence.*;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static com.edwinserrano.ChallengeLiterAlura.model.Categoria.convertirACategoria;
+import java.util.Objects;
 
 @Entity
-@Table(name = "datos_libros")
-public class Libros {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@Table(name = "books")
+public class Book {
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+  private String title;
+  @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+  @JoinColumn(name = "author_id")
+  private Author author;
+  private String language;
+  private int downloadCount;
 
-    @Column(unique = true)
-    private String titulo;
-    private Double numeroDeDescargas;
-    private String tipoDeMedio;
+  public Book() {}
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "autor_id")
-    private Autores autor; //= new ArrayList<>(); // Inicializar la lista
+  public Book(BookData bookData, Author author) {
+    this.title = bookData.title();
+    this.author = author;
+    this.language = bookData.language() != null && bookData.language().length > 0 ? bookData.language()[0] : null;
+    this.downloadCount = bookData.download_count();
+  }
 
-    @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "libro_categorias", joinColumns = @JoinColumn(name = "libro_id"))
-    @Enumerated(EnumType.STRING)
-    @Column(name = "categoria")
-    private List<Categoria> categorias;
+  public Long getId() {
+    return id;
+  }
 
-    @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "libro_idiomas", joinColumns = @JoinColumn(name = "libro_id"))
-    @Enumerated(EnumType.STRING)
-    @Column(name = "idioma")
-    private List<Idioma> idiomas;
+  public void setId(Long id) {
+    this.id = id;
+  }
 
-//    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//    @JoinColumn(name = "libro_id")
-//    private List<Traduccion> traduccion; //= new ArrayList<>();
+  public String getTitle() {
+    return title;
+  }
 
-    @ElementCollection
-    @CollectionTable(name = "libro_formatos", joinColumns = @JoinColumn(name = "libro_id"))
-    @MapKeyColumn(name = "formato")
-    @Column(name = "url")
-    private Map<String, String> formatos = new HashMap<>();
+  public void setTitle(String title) {
+    this.title = title;
+  }
 
-    public Libros(){}
+  public Author getAuthor() {
+    return author;
+  }
 
+  public void setAuthor(Author author) {
+    this.author = author;
+  }
 
-//        public Libros(DatosLibro datosLibro){
-//        this.titulo = datosLibro.getTitulo();
-//        this.autor = autor;
-////        this.autor = datosLibro.autor().stream()
-////                .map(datos -> new Autores(
-////                        null,
-////                        datos.nombre(),
-////                        datos.fechaDeNacimiento(),
-////                        datos.fechaDeMuerte()
-////                ))
-////                        .collect(Collectors.toList());
-//        this.traduccion = datosLibro.traduccion().stream()
-//                .map(datos -> new Traduccion(
-//                        null,
-//                        datos.nombre(),
-//                        datos.fechaDeNacimiento(),
-//                        datos.fechaDeMuerte()
-//                ))
-//                .collect(Collectors.toList());
-//        this.categorias = datosLibro.categorias().stream()
-//                .map(Categoria::valueOf)
-//                .findFirst()
-//                .orElse(null);
-//        this.idiomas = datosLibro.idiomas().stream()
-//                .map(Idioma::valueOf)
-//                .findFirst()
-//                .orElse(null);
-//        this.tipoDeMedio = (String) datosLibro.getTipoDeMedio();
-//        this.formatos = (Map<String, String>) datosLibro.getFormatos();
-//        this.numeroDeDescargas = (Double) datosLibro.getNumeroDeDescargas();
-//    }
+  public String getLanguage() {
+    return language;
+  }
 
+  public void setLanguage(String language) {
+    this.language = language;
+  }
 
-    public Libros(DatosLibro datosLibro, Autores autores) {
+  public int getDownloadCount() {
+    return downloadCount;
+  }
 
-        this.titulo = datosLibro.getTitulo();
-        this.numeroDeDescargas = (Double) datosLibro.getNumeroDeDescargas();
-        this.tipoDeMedio = (String) datosLibro.getTipoDeMedio();
-        this.autor = autores;
-        Object categoriasObj = datosLibro.getCategorias();  // Recibe como Object.
-        if (categoriasObj instanceof List) {
-            List<String> categoriasList = (List<String>) categoriasObj;  // Casting seguro a List<String>.
-            if (!categoriasList.isEmpty()) {
-                String categoriaStr = categoriasList.get(0);  // Toma el primer elemento de la lista.
-                this.categorias = Collections.singletonList(convertirACategoria(categoriaStr));  // Convierte a enum.
-            }
-        } else {
-            System.out.println("Error: categorias no es una lista de Strings.");
-        }
-//        String categoriaStr = datosLibro.getCategorias();
-//        this.categorias = Collections.singletonList(convertirACategoria(categoriaStr));
-        //this.categorias = (List<Categoria>) datosLibro.getCategorias();
-        Object idiomasObj = datosLibro.getIdiomas();
-        if (idiomasObj instanceof List) {
-            List<String> idiomasList = (List<String>) idiomasObj;  // Casting seguro a List<String>.
-            this.idiomas = convertirAIdioma(idiomasList);  // Aquí llamas a tu método de conversión para Idiomas.
-        } else {
-            System.out.println("Error: idiomas no es una lista de Strings.");
-        }
-//        List<String> idiomaStrings = (List<String>) datosLibro.getIdiomas();
-//        this.idiomas = convertirAIdioma(idiomaStrings);
-        //this.idiomas = (List<Idioma>) datosLibro.getIdiomas();  // O lo que corresponda
-//        this.traduccion = (List<Traduccion>) datosLibro.getTraduccion();  // O lo que corresponda
-        this.formatos = (Map<String, String>) datosLibro.getFormatos();
+  public void setDownloadCount(int downloadCount) {
+    this.downloadCount = downloadCount;
+  }
 
-    }
+  @Override
+  public String toString() {
+    return "Book{" +
+        "language=" + language +
+        ", downloadCount=" + downloadCount +
+        ", author=" + author +
+        ", title='" + title + '\'' +
+        '}';
+  }
 
-    private List<Idioma> convertirAIdioma(List<String> idiomaStrings) {
-        List<Idioma> idiomas = new ArrayList<>();
-        for (String idiomaStr : idiomaStrings) {
-            try {
-                Idioma idioma = Idioma.fromCodigo(idiomaStr);
-                //Idioma idioma = Idioma.valueOf(idiomaStr.toUpperCase());
-                idiomas.add(idioma);
-            } catch (IllegalArgumentException e) {
-                System.out.println(e.getMessage());
-                //System.out.println("Idioma no válido: " + idiomaStr);
-            }
-        }
-        return idiomas;
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Book book = (Book) o;
+    return downloadCount == book.downloadCount && Objects.equals(id, book.id) && Objects.equals(title, book.title) && Objects.equals(author, book.author) && Objects.deepEquals(language, book.language);
+  }
 
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getTitulo() {
-        return titulo;
-    }
-
-    public void setTitulo(String titulo) {
-        this.titulo = titulo;
-    }
-
-//    public List<Traduccion> getTraduccion(List<DatosTraduccion> traduccion) {
-//        return this.traduccion;
-//    }
-//
-//    public void setTraduccion(List<Traduccion> traduccion) {
-//        this.traduccion = traduccion;
-//    }
-
-    public List<Categoria> getCategorias() {
-        return this.categorias;
-    }
-
-    public void setCategorias(Categoria categorias) {
-        this.categorias = Collections.singletonList(categorias);
-    }
-
-    public List<Idioma> getIdiomas(Object idiomas) {
-        return this.idiomas;
-    }
-
-    public void setIdiomas(Idioma idiomas) {
-        this.idiomas = Collections.singletonList(idiomas);
-    }
-
-    public String getTipoDeMedio(Object tipoDeMedio) {
-        return this.tipoDeMedio;
-    }
-
-    public void setTipoDeMedio(String tipoDeMedio) {
-        this.tipoDeMedio = tipoDeMedio;
-    }
-
-    public Map<String, String> getFormatos(Object formatos) {
-        return this.formatos;
-    }
-
-    public void setFormatos(Map<String, String> formatos) {
-        this.formatos = formatos;
-    }
-
-    public Double getNumeroDeDescargas(Object formatos) {
-        return numeroDeDescargas;
-    }
-
-    public void setNumeroDeDescargas(Double numeroDeDescargas) {
-        this.numeroDeDescargas = numeroDeDescargas;
-    }
-
-//    @Override
-//    public String toString() {
-//        String idiomasStr = idiomas.stream()
-//                .map(Idioma::getNombre)  // Utiliza el nombre en español del enum
-//                .collect(Collectors.joining(", "));
-////        String autoresStr = autor != null && !autor.isEmpty()
-////                ? autor.stream()
-////                .map(autor -> autor.getNombre())  // Asegúrate de que 'getNombre' devuelve un String
-////                .collect(Collectors.joining(", "))  // Concatena los nombres con una coma
-////                : "Sin autor";  // Si no hay autores, muestra "Sin autor"
-//        return  "Titulo= " + this.titulo + '\'' +
-//                "\nNúmero De Descargas: " + this.numeroDeDescargas +
-//                "\ntipoDeMedio: " + this.tipoDeMedio + '\'' +
-//                "\nautor: " + this.autor +
-//                "\ncategorias: " + this.categorias +
-//                "\nidiomas: " + idiomasStr +
-////                "\ntraduccion: " + this.traduccion +
-//                "\nformatos: " + this.formatos;
-//    }
-
-
-
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, title, author, language, downloadCount);
+  }
 }
