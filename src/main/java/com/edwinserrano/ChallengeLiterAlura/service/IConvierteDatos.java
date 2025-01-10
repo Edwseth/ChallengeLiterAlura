@@ -1,5 +1,5 @@
 package com.edwinserrano.ChallengeLiterAlura.service;
 
-public interface IConvierteDatos {
-    <T> T obtenerDatos(String json, Class<T> clase);
+public interface IJsonParser {
+  <T> T fromJson(String json, Class<T> tClass);
 }
