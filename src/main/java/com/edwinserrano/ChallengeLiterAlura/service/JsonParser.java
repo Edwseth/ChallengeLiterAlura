@@ -1,9 +1,9 @@
 package com.edwinserrano.ChallengeLiterAlura.service;
 
+import com.edwinserrano.ChallengeLiterAlura.contracts.IJsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.edwinserrano.ChallengeLiterAlura.contracts.IJsonParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
-public class Menu {
+public class Principal {
   Scanner sc = new Scanner(System.in);
   JsonParser jsonParser = new JsonParser();
   ApiClient apiClient = new ApiClient();
@@ -23,7 +23,7 @@ public class Menu {
   private final BookRepository bookRepository;
   private final String url = "https://gutendex.com/books";
 
-  public Menu(BookRepository bookRepository, AuthorRepository authorRepository) {
+  public Principal(BookRepository bookRepository, AuthorRepository authorRepository) {
     this.bookRepository = bookRepository;
     this.authorRepository = authorRepository;
   }
@@ -32,28 +32,21 @@ public class Menu {
     var option = -1;
     while (option != 0) {
       var menu = """
-        *** Menú Principal ***
-        -----------------------
-        [Búsqueda]
-        [1] Buscar libros por título
-        [2] Buscar autores por nombre
-        
-        [Historial]
-        [3] Ver historial de búsquedas por idioma
-        [4] Ver historial completo de búsquedas
-        [5] Ver historial de autores registrados
-        [6] Ver historial de autores vivos en un año específico
-        
-        [Estadísticas]
-        [7] Ver la cantidad de libros por idioma
-        [8] Ver el top 10 de libros más descargados
-        [9] Ver estadísticas de descargas
-        [10] Ver promedio de vida de los autores
-  
-        [0] Salir del programa
-        ------------------------
-        Por favor, selecciona una opción (0-6):
-        """;
+        *\033[1;34m***************************************
+        ***   \033[1;33mMenú de Opciones - LiterAlura\033[1;34m   ***
+        ***************************************\033[0m
+        \033[1;32m1.\033[0m \033[1;37mBuscar Libros por Título.\033[0m
+        \033[1;32m2.\033[0m \033[1;37mBuscar autores por nombre.\033[0m
+        \033[1;32m3.\033[0m \033[1;37mVer historial de búsquedas por idioma.\033[0m
+        \033[1;32m4.\033[0m \033[1;37mVer historial completo de búsquedas.\033[0m
+        \033[1;32m5.\033[0m \033[1;37mVer historial de autores registrados.\033[0m
+        \033[1;32m6.\033[0m \033[1;37mVer historial de autores vivos en un año específico.\033[0m
+        \033[1;32m7.\033[0m \033[1;37mVer la cantidad de libros por idioma.\033[0m
+        \033[1;32m8.\033[0m \033[1;37mVer el top 10 de libros más descargados.\033[0m
+        \033[1;32m9.\033[0m \033[1;37mVer estadísticas de descargas.\033[0m
+        \033[1;32m0.\033[0m \033[1;37mSalir.\033[0m
+        \033[1;34m***************************************
+        \033[1;33mElige una opción: \033[0m""";
       System.out.println(menu);
 
       option = getUserOption();
@@ -94,10 +87,6 @@ public class Menu {
         case 9:
           System.out.println("Consultando estadísticas de descargas...");
           showDownloadStatistics();
-          break;
-        case 10:
-          System.out.println("Consultando promedio de vida de los autores...");
-          showAuthorLifeSpanStatistics();
           break;
         case 0:
           System.out.print("¿Estás seguro de que quieres salir? (sí/no): ");
@@ -334,19 +323,6 @@ public class Menu {
     System.out.printf("Descargas Promedio: %.2f%n", stats.getAverage());
     System.out.printf("Máximas Descargas: %.0f%n", stats.getMax());
     System.out.printf("Mínimas Descargas: %.0f%n", stats.getMin());
-    System.out.println("==============================");
-  }
-
-  public void showAuthorLifeSpanStatistics() {
-    DoubleSummaryStatistics stats = authorRepository.findAll().stream()
-        .filter(author -> author.getDeathYear() > 0)
-        .mapToDouble(author -> author.getDeathYear() - author.getBirthYear())
-        .summaryStatistics();
-
-    System.out.println("=== Estadísticas de Longevidad de Autores ===");
-    System.out.printf("Longevidad Promedio: %.2f años%n", stats.getAverage());
-    System.out.printf("Vida más Corta: %.0f años%n", stats.getMin());
-    System.out.printf("Vida más Larga: %.0f años%n", stats.getMax());
     System.out.println("==============================");
   }
 
